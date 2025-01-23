@@ -1,12 +1,6 @@
-# RESTful API Node Server Boilerplate
+# KITCO RESTful API Node Server
 
-[![Build Status](https://travis-ci.org/hagopj13/node-express-boilerplate.svg?branch=master)](https://travis-ci.org/hagopj13/node-express-boilerplate)
-[![Coverage Status](https://coveralls.io/repos/github/hagopj13/node-express-boilerplate/badge.svg?branch=master)](https://coveralls.io/github/hagopj13/node-express-boilerplate?branch=master)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-
-A boilerplate/starter project for quickly building RESTful APIs using Node.js, Express, and Mongoose.
-
-By running a single command, you will get a production-ready Node.js app installed and fully configured on your machine. The app comes with many built-in features, such as authentication using JWT, request validation, unit and integration tests, continuous integration, docker support, API documentation, pagination, etc. For more details, check the features list below.
+The app comes with many built-in features, such as authentication using JWT, request validation, unit and integration tests, continuous integration, docker support, API documentation, pagination, etc. For more details, check the features list below.
 
 ## Quick Start
 
@@ -29,8 +23,8 @@ If you would still prefer to do the installation manually, follow these steps:
 Clone the repo:
 
 ```bash
-git clone --depth 1 https://github.com/hagopj13/node-express-boilerplate.git
-cd node-express-boilerplate
+git clone --depth 1 https://github.com/angantakpe/kitco-news.git
+cd kitco-news
 npx rimraf ./.git
 ```
 
@@ -434,7 +428,3 @@ Contributions are more than welcome! Please check out the [contributing guide](C
 - [danielfsousa/express-rest-es2017-boilerplate](https://github.com/danielfsousa/express-rest-es2017-boilerplate)
 - [madhums/node-express-mongoose](https://github.com/madhums/node-express-mongoose)
 - [kunalkapadia/express-mongoose-es6-rest-api](https://github.com/kunalkapadia/express-mongoose-es6-rest-api)
-
-## License
-
-[MIT](LICENSE)
