@@ -1,4 +1,4 @@
-# Full Stack FastAPI Template
+# Kitco News Articles Management Platform
 
 
 ## Technology Stack and Features
