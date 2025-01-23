@@ -1,0 +1,14 @@
+{
+    "mining": [
+        {
+            "title": "GoldCorp Mining Reports Record Production",
+            "content": "GoldCorp Mining announced record gold production of 1.2 million ounces in Q4 2024, marking a 15% increase from the previous quarter. The company's Nevada operations exceeded expectations, contributing 60% of total production. CEO Sarah Johnson attributes the success to operational optimizations and new mining technology implementation."
+        }
+    ],
+    "crypto": [
+        {
+            "title": "BlockChain Protocol Launches Major Network Upgrade",
+            "content": "BlockChain Protocol has successfully implemented its highly anticipated network upgrade, increasing transaction throughput by 400%. The upgrade introduces new smart contract capabilities and improved security features. The protocol's native token saw a 25% increase in trading volume following the announcement."
+        }
+    ]
+}
