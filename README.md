@@ -50,11 +50,11 @@ If you want to have a private repository, GitHub won't allow you to simply fork 
 
 But you can do the following:
 
-- Create a new GitHub repo, for example `my-full-stack`.
-- Clone this repository manually, set the name with the name of the project you want to use, for example `my-full-stack`:
+- Create a new GitHub repo, for example `kitco-news`.
+- Clone this repository manually, set the name with the name of the project you want to use, for example `kitco-news`:
 
 ```bash
-git clone git@github.com:kitconews/kitconews.git kitconews
+git clone git@github.com:angantakpe/kitco-news.git kitco-news
 ```
 
 - Enter into the new directory:
