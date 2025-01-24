@@ -5,6 +5,8 @@ import { toast } from "../../components/ui/use-toast";
 import { ArticlesService } from "app/api/sdk.gen";
 import { franc } from "franc";
 import { Article } from "app/api/types.gen";
+import { RadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
+import { Label } from "../../components/ui/label";
 
 interface ArticleActionsProps {
   params: { id: string };
@@ -16,17 +18,18 @@ export function ArticleActions({ params, article }: ArticleActionsProps) {
   const [summary, setSummary] = useState("");
   const [tagged, setTagged] = useState("");
   const [detectedLanguage, setDetectedLanguage] = useState("");
+  const [language, setLanguage] = useState("");
 
   const handleTranslate = async () => {
-    console.log("detectedLanguage: ", detectedLanguage);
     const translatedArticle = await ArticlesService.postArticlesByIdTranslate({
       id: params.id,
       requestBody: {
-        language: detectedLanguage,
+        language: language,
       },
     });
+    let translatedContent = language === "english" ? translatedArticle.content : translatedArticle.contentFr;
 
-    setTranslatedContent(translatedArticle.content);
+    setTranslatedContent(translatedContent);
     toast({
       title: "Article translated",
       description: "Your article has been translated.",
@@ -70,15 +73,18 @@ export function ArticleActions({ params, article }: ArticleActionsProps) {
 
     if (detectedLanguage === "eng" || detectedLanguage === "en") {
       setDetectedLanguage("english");
+      setLanguage("french");
     } else if (
       detectedLanguage === "fra" ||
       detectedLanguage === "fr" ||
       detectedLanguage === "french"
     ) {
       setDetectedLanguage("french");
+      setLanguage("english");
     } else {
       console.log("Defaulting to english: ", detectedLanguage);
       setDetectedLanguage("english");
+      setLanguage("english");
     }
 
     console.log("detectedLanguage: ", detectedLanguage);
@@ -86,6 +92,25 @@ export function ArticleActions({ params, article }: ArticleActionsProps) {
 
   return (
     <div className="space-y-4">
+      <div>
+        <Label>Language</Label>
+        <RadioGroup
+          name="language"
+          value={language}
+          onValueChange={(value) =>
+            setLanguage(value)
+          }
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="english" id="english" />
+            <Label htmlFor="english">English</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="french" id="french" />
+            <Label htmlFor="french">French</Label>
+          </div>
+        </RadioGroup>
+      </div>
       <div className="flex space-x-2">
         <Button onClick={handleTranslate}>Translate</Button>
         <Button onClick={handleSummarize}>Summarize</Button>

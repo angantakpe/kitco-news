@@ -17,7 +17,6 @@ interface BilingualPreviewProps {
 
 export function BilingualPreview({ article }: BilingualPreviewProps) {
   const [previewLanguage, setPreviewLanguage] = useState<"en" | "fr">("en");
-
   const toggleLanguage = () => {
     setPreviewLanguage((prev) => (prev === "en" ? "fr" : "en"));
   };
@@ -28,7 +27,6 @@ export function BilingualPreview({ article }: BilingualPreviewProps) {
 
   useEffect(() => {
     const detectedLanguage = franc(article.title || article.content || "");
-    // Set language based on detection result
     if (detectedLanguage === "eng" || detectedLanguage === "en") {
       setPreviewLanguage("en");
     } else if (
@@ -40,12 +38,7 @@ export function BilingualPreview({ article }: BilingualPreviewProps) {
     } else {
       setPreviewLanguage("en"); // Default to English for other languages
     }
-    console.log("detectedLanguage: ", detectedLanguage);
   }, [article]);
-
-  useEffect(() => {
-    console.log("previewLanguage: ", previewLanguage);
-  }, []);
 
   return (
     <Card>

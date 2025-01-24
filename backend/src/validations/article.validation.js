@@ -82,17 +82,27 @@ const translateArticle = {
   params: Joi.object().keys({
     articleId: Joi.string().custom(objectId),
   }),
+  body: Joi.object().keys({
+    language: Joi.string().allow(null),
+  }),
 };
 
 const summarizeArticle = {
   params: Joi.object().keys({
     articleId: Joi.string().custom(objectId),
   }),
+  body: Joi.object().keys({
+    language: Joi.string().allow(null),
+  }),
 };
 
 const tagArticle = {
   params: Joi.object().keys({
     articleId: Joi.string().custom(objectId),
+  }),
+  body: Joi.object().keys({
+    tags: Joi.array().items(Joi.string()),
+    language: Joi.string().allow(null),
   }),
 };
 

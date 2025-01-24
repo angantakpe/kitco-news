@@ -69,7 +69,10 @@ export default function EditArticlePage({
   const router = useRouter();
   const [article, setArticle] = useState<Article>({
     title: "",
+    titleFr: "",
     content: "",
+    contentFr: "",
+    summary: "",
     status: "draft",
     category: "",
     tags: [],
@@ -81,7 +84,6 @@ export default function EditArticlePage({
       const response = await ArticlesService.getArticlesById({
         id: params.id,
       });
-
       if (!response) {
         throw new Error("Failed to fetch article");
       }
@@ -90,7 +92,10 @@ export default function EditArticlePage({
 
       setArticle({
         title: response.title,
+        titleFr: response.titleFr,
         content: response.content,
+        contentFr: response.contentFr,
+        summary: response.summary,
         status: response.status || "draft",
         category: response.category || "",
         tags: response.tags || [],

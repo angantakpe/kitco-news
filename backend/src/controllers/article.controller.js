@@ -7,8 +7,6 @@ const { articleAiService } = require('../services');
 const { userService } = require('../services');
 
 const createArticle = catchAsync(async (req, res) => {
-  console.log(req.body);
-  
   // Get origin from headers and generate a simple hash if present
   const origin = req.headers.origin || req.headers.referer || 'anonymous';
   const authorId = `user_${Buffer.from(origin).toString('base64').substring(0, 8)}`;
@@ -65,17 +63,17 @@ const generateArticle = catchAsync(async (req, res) => {
 });
 
 const translateArticle = catchAsync(async (req, res) => {
-  const article = await articleAiService.translateArticle(req.params.articleId);
+  const article = await articleAiService.translateArticle(req.params.articleId, req.body.language);
   res.status(httpStatus.CREATED).send(article);
 });
 
 const summarizeArticle = catchAsync(async (req, res) => {
-  const article = await articleAiService.summarizeArticle(req.params.articleId);
+  const article = await articleAiService.summarizeArticle(req.params.articleId, req.body.language);
   res.status(httpStatus.CREATED).send(article);
 });
 
 const tagArticle = catchAsync(async (req, res) => {
-  const article = await articleAiService.tagArticle(req.params.articleId);
+  const article = await articleAiService.tagArticle(req.params.articleId, req.body.language);
   res.status(httpStatus.CREATED).send(article);
 });
 

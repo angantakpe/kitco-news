@@ -16,6 +16,7 @@ export default function CreateArticlePage() {
   const [article, setArticle] = useState({
     title: "",
     content: "",
+    tags: [],
     category: "",
     language: "english",
     author: "fake@email.com",

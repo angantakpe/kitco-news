@@ -66,9 +66,10 @@ const generateArticle = async (pressRelease, language) => {
 /**
  * Translate an article to the missing language of the article
  * @param {ObjectId} articleId
+ * @param {string} language
  * @returns {Promise<string>}
  */
-const translateArticle = async (articleId) => {
+const translateArticle = async (articleId, language) => {
   try {
     const article = await articleService.getArticleById(articleId);
 
@@ -76,7 +77,7 @@ const translateArticle = async (articleId) => {
       throw new ApiError(httpStatus.NOT_FOUND, 'Article not found');
     }
 
-    const language = article.contentFr == '' || article.contentFr == null ? 'french' : 'english';
+    console.log('translateArticle language: ', language);
 
     const prompt = `Translate the following article to ${language}.
       Return ONLY a JSON object in the following format, with no additional text or explanation:
@@ -96,12 +97,12 @@ const translateArticle = async (articleId) => {
       messages: [
         {
           role: 'system',
-          content: 'You are a professional translator. Always respond with valid JSON only.'
+          content: 'You are a professional translator. Always respond with valid JSON only.',
         },
-        { 
-          role: 'user', 
-          content: prompt 
-        }
+        {
+          role: 'user',
+          content: prompt,
+        },
       ],
       max_tokens: 2000,
       temperature: 0.3, // Lower temperature for more consistent formatting
@@ -113,6 +114,8 @@ const translateArticle = async (articleId) => {
       throw new Error(`Failed to translate article with id ${articleId}`);
     }
 
+    console.log('translateArticle message: ', message);
+
     let parsedMessage;
     try {
       parsedMessage = JSON.parse(message);
@@ -121,15 +124,14 @@ const translateArticle = async (articleId) => {
       throw new Error('Invalid translation format received');
     }
 
-    // Validate the required fields
     if (!parsedMessage.title || !parsedMessage.content || !parsedMessage.language) {
       throw new Error('Missing required fields in translation response');
     }
 
-    if (parsedMessage.language?.toLowerCase() === 'french') {
+    if (language === 'french') {
       article.titleFr = parsedMessage.title;
       article.contentFr = parsedMessage.content;
-    } else if (parsedMessage.language?.toLowerCase() === 'english') {
+    } else if (language === 'english') {
       article.title = parsedMessage.title;
       article.content = parsedMessage.content;
     }
