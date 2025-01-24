@@ -40,8 +40,10 @@ export type OpenAPIConfig = {
 	};
 };
 
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
+
 export const OpenAPI: OpenAPIConfig = {
-	BASE: 'http://localhost:3000/v1',
+	BASE: baseURL + '/v1',
 	CREDENTIALS: 'include',
 	ENCODE_PATH: undefined,
 	HEADERS: undefined,

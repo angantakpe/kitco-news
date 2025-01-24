@@ -207,6 +207,18 @@ List of available routes:
 `PATCH /v1/users/:userId` - update user\
 `DELETE /v1/users/:userId` - delete user
 
+**Article routes**:\
+`GET /v1/articles` - get all articles\
+`GET /v1/articles/:articleId` - get article\
+`POST /v1/articles` - create article\
+`PATCH /v1/articles/:articleId` - update article\
+`DELETE /v1/articles/:articleId` - delete article
+`POST /v1/articles/generate` - generate article
+`POST /v1/articles/:articleId/translate` - translate article
+`POST /v1/articles/:articleId/summarize` - summarize article
+`POST /v1/articles/:articleId/tag` - tag article
+
+
 ## Error Handling
 
 The app has a centralized error handling mechanism.
