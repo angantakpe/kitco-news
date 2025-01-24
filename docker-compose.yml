@@ -7,8 +7,6 @@ services:
       - "27017:27017"
     volumes:
       - dbdata:/data/db
-    networks:
-      - traefik-public
     env_file:
       - .env
     environment:
@@ -19,19 +17,18 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+    networks:
+      - traefik-public
 
   backend:
     image: kitco-backend
     build:
       context: ./backend
       dockerfile: ../docker/Dockerfile.backend
-    restart: always
     ports:
       - "3001:3001"
     volumes:
       - .:/usr/src/kitco-news
-    networks:
-      - traefik-public
     depends_on:
       db:
         condition: service_healthy
@@ -50,16 +47,16 @@ services:
       - "traefik.http.routers.backend.entrypoints=http"
       - "traefik.http.routers.backend.middlewares=https-redirect"
       - "traefik.http.services.backend.loadbalancer.server.port=3001"
+    restart: always
+    networks:
+      - traefik-public
 
   frontend:
     build:
       context: ./frontend
       dockerfile: ../docker/Dockerfile.frontend
-    restart: always
     ports:
       - "3000:3000"
-    networks:
-      - traefik-public
     env_file:
       - .env
     labels:
@@ -68,10 +65,12 @@ services:
       - "traefik.http.routers.frontend.entrypoints=http"
       - "traefik.http.routers.frontend.middlewares=https-redirect"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    restart: always
+    networks:
+      - traefik-public
 
   traefik:
     image: traefik:3.0
-    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -96,6 +95,10 @@ services:
       - "--certificatesresolvers.le.acme.tlschallenge=true"
       - "--accesslog"
       - "--log"
+    restart: always
+    networks:
+      - traefik-public
+
 
 volumes:
   dbdata:

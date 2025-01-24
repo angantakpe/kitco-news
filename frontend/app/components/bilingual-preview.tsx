@@ -16,27 +16,36 @@ interface BilingualPreviewProps {
 }
 
 export function BilingualPreview({ article }: BilingualPreviewProps) {
-  const [detectedLanguage, setDetectedLanguage] = useState("");
-  const [previewLanguage, setPreviewLanguage] = useState<"en" | "fr">(
-    detectedLanguage as "en" | "fr"
-  );
+  const [previewLanguage, setPreviewLanguage] = useState<"en" | "fr">("en");
 
   const toggleLanguage = () => {
     setPreviewLanguage((prev) => (prev === "en" ? "fr" : "en"));
   };
 
-  // Mock translation function (replace with actual translation logic)
   const translate = (text: string, targetLang: string) => {
-    if (targetLang === detectedLanguage) return text;
-    return `[Translated] ${text}`;
+    return text || "";
   };
 
   useEffect(() => {
     const detectedLanguage = franc(article.title || article.content || "");
-    setDetectedLanguage(detectedLanguage);
-    setPreviewLanguage(detectedLanguage as "en" | "fr");
+    // Set language based on detection result
+    if (detectedLanguage === "eng" || detectedLanguage === "en") {
+      setPreviewLanguage("en");
+    } else if (
+      detectedLanguage === "fra" ||
+      detectedLanguage === "fr" ||
+      detectedLanguage === "french"
+    ) {
+      setPreviewLanguage("fr");
+    } else {
+      setPreviewLanguage("en"); // Default to English for other languages
+    }
     console.log("detectedLanguage: ", detectedLanguage);
   }, [article]);
+
+  useEffect(() => {
+    console.log("previewLanguage: ", previewLanguage);
+  }, []);
 
   return (
     <Card>
@@ -47,12 +56,31 @@ export function BilingualPreview({ article }: BilingualPreviewProps) {
         </Button>
       </CardHeader>
       <CardContent>
-        <h3 className="text-xl font-bold mb-2">
-          {translate(article.title, previewLanguage)}
-        </h3>
-        <p className="whitespace-pre-wrap">
-          {translate(article.content, previewLanguage)}
-        </p>
+        <div className="flex flex-col gap-2">
+          {previewLanguage === "en" && (
+            <h3 className="text-xl font-bold mb-2">
+              {translate(article.title, previewLanguage)}
+            </h3>
+          )}
+          {previewLanguage === "fr" && (
+            <p className="whitespace-pre-wrap">
+              {translate(article.titleFr, previewLanguage)}
+            </p>
+          )}
+          {previewLanguage === "en" && (
+            <p className="whitespace-pre-wrap">
+              {translate(article.content, previewLanguage)}
+            </p>
+          )}
+          {previewLanguage === "fr" && (
+            <p className="whitespace-pre-wrap">
+              {translate(article.contentFr, previewLanguage)}
+            </p>
+          )}
+          <p className="whitespace-pre-wrap">
+            Category: {translate(article.category, previewLanguage)}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

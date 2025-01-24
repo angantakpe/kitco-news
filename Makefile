@@ -34,8 +34,11 @@ logs:
 
 .PHONY: clean
 clean:
-	@echo "🧹 Cleaning up containers and volumes..."
+	@echo "🧹 Cleaning up containers, images, and volumes..."
 	docker-compose -f $(COMPOSE_FILE) down -v --remove-orphans
+	docker image prune -a -f
+	docker volume prune -f
+	docker system prune -a --volumes -f
 
 .PHONY: backend-shell
 backend-shell:

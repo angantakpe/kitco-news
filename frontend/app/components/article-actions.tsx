@@ -67,7 +67,20 @@ export function ArticleActions({ params, article }: ArticleActionsProps) {
 
   useEffect(() => {
     const detectedLanguage = franc(article.title || article.content || "");
-    setDetectedLanguage(detectedLanguage);
+
+    if (detectedLanguage === "eng" || detectedLanguage === "en") {
+      setDetectedLanguage("english");
+    } else if (
+      detectedLanguage === "fra" ||
+      detectedLanguage === "fr" ||
+      detectedLanguage === "french"
+    ) {
+      setDetectedLanguage("french");
+    } else {
+      console.log("Defaulting to english: ", detectedLanguage);
+      setDetectedLanguage("english");
+    }
+
     console.log("detectedLanguage: ", detectedLanguage);
   }, [article]);
 

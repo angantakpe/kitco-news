@@ -28,7 +28,7 @@ router
   .patch(validate(articleValidation.updateArticle), articleController.updateArticle)
   .delete(validate(articleValidation.deleteArticle), articleController.deleteArticle);
 
-router.route('/:articleId/generate').post(validate(articleValidation.generateArticle), articleController.generateArticle);
+router.route('/generate').post(validate(articleValidation.generateArticle), articleController.generateArticle);
 router.route('/:articleId/translate').post(validate(articleValidation.translateArticle), articleController.translateArticle);
 router.route('/:articleId/summarize').post(validate(articleValidation.summarizeArticle), articleController.summarizeArticle);
 router.route('/:articleId/tag').post(validate(articleValidation.tagArticle), articleController.tagArticle);

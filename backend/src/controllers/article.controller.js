@@ -7,7 +7,19 @@ const { articleAiService } = require('../services');
 const { userService } = require('../services');
 
 const createArticle = catchAsync(async (req, res) => {
-  const article = await articleService.createArticle(req.body);
+  console.log(req.body);
+  
+  // Get origin from headers and generate a simple hash if present
+  const origin = req.headers.origin || req.headers.referer || 'anonymous';
+  const authorId = `user_${Buffer.from(origin).toString('base64').substring(0, 8)}`;
+  
+  // Add author to the request body
+  const articleData = {
+    ...req.body,
+    author: authorId,
+  };
+  
+  const article = await articleService.createArticle(articleData);
   res.status(httpStatus.CREATED).send(article);
 });
 

@@ -1,17 +1,20 @@
 FROM node:18-alpine
 
-RUN mkdir -p /usr/src/node-app && chown -R node:node /usr/src/node-app
-
 WORKDIR /usr/src/node-app
+
+# Add nodemon for development
+RUN npm install -g nodemon
 
 COPY package*.json yarn.lock ./
 
-USER node
-
 RUN yarn install --pure-lockfile
 
-COPY --chown=node:node . .
+COPY . .
 
 EXPOSE 3001
 
-CMD ["yarn", "dev", "-L"]
+# Use development mode by default
+ENV NODE_ENV=development
+
+# Use nodemon for hot reloading in development
+CMD ["nodemon", "--watch", "src", "--exec", "yarn", "dev", "-L"]

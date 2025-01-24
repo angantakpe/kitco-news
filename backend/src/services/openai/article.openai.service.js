@@ -78,23 +78,33 @@ const translateArticle = async (articleId) => {
 
     const language = article.contentFr == '' || article.contentFr == null ? 'french' : 'english';
 
-    const prompt = `Translate the following article to ${language}:\n\n
-      The article should be formatted in the following format:
+    const prompt = `Translate the following article to ${language}.
+      Return ONLY a JSON object in the following format, with no additional text or explanation:
       {
-        "title": "string",
-        "content": "string",
-        "language": "string",
+        "title": "translated title",
+        "content": "translated content",
+        "language": "${language}"
       }
-      
+
+      Article to translate:
       Title: ${article.title}
       Content: ${article.content}
     `;
 
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1000,
-      temperature: 0.7,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a professional translator. Always respond with valid JSON only.'
+        },
+        { 
+          role: 'user', 
+          content: prompt 
+        }
+      ],
+      max_tokens: 2000,
+      temperature: 0.3, // Lower temperature for more consistent formatting
     });
 
     const message = response.choices[0].message.content.trim();
@@ -103,23 +113,32 @@ const translateArticle = async (articleId) => {
       throw new Error(`Failed to translate article with id ${articleId}`);
     }
 
-    const parsedMessage = JSON.parse(message);
-
-    if (parsedMessage.language?.toLowerCase() === 'french') {
-      article.titleFr = parsedMessage.title || article.titleFr;
-      article.contentFr = parsedMessage.content || article.contentFr;
+    let parsedMessage;
+    try {
+      parsedMessage = JSON.parse(message);
+    } catch (parseError) {
+      logger.error(`Invalid JSON response for article ${articleId}:`, message);
+      throw new Error('Invalid translation format received');
     }
 
-    if (parsedMessage.language?.toLowerCase() === 'english') {
-      article.title = parsedMessage.title || article.title;
-      article.content = parsedMessage.content || article.content;
+    // Validate the required fields
+    if (!parsedMessage.title || !parsedMessage.content || !parsedMessage.language) {
+      throw new Error('Missing required fields in translation response');
+    }
+
+    if (parsedMessage.language?.toLowerCase() === 'french') {
+      article.titleFr = parsedMessage.title;
+      article.contentFr = parsedMessage.content;
+    } else if (parsedMessage.language?.toLowerCase() === 'english') {
+      article.title = parsedMessage.title;
+      article.content = parsedMessage.content;
     }
 
     await article.save();
     return article;
   } catch (error) {
-    logger.error(`Error translating article with id ${articleId}:`, error);
-    throw new Error('Failed to translate article');
+    logger.error(`Error translating article with id ${articleId}:`, error.message);
+    throw new Error('Failed to translate article: ' + error.message);
   }
 };
 
