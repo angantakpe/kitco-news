@@ -11,7 +11,7 @@ RUN yarn install --pure-lockfile
 
 COPY . .
 
-EXPOSE 3001
+EXPOSE 3001 8080 8081
 
 # Use development mode by default
 ENV NODE_ENV=development

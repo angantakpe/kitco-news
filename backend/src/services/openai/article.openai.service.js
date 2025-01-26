@@ -46,11 +46,13 @@ const generateArticle = async (pressRelease, language) => {
     `;
 
     const response = await openai.chat.completions.create({
+      stream: true,
       model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'system',
-          content: 'You are a professional financial journalist who writes about mining and cryptocurrency. Generate new articles inspired by but different from the given press release.',
+          content:
+            'You are a professional financial journalist who writes about mining and cryptocurrency. Generate new articles inspired by but different from the given press release.',
         },
         {
           role: 'user',
@@ -61,7 +63,16 @@ const generateArticle = async (pressRelease, language) => {
       temperature: 0.7,
     });
 
-    const message = response.choices[0].message.content.trim();
+    let message = '';
+    for await (const chunk of response) {
+      for (const choice of chunk.choices) {
+        const content = choice.delta.content || '';
+        message += content;
+        console.log('Streaming response chunk:', content);
+      }
+    }
+
+    message = message.trim();
 
     if (!message) {
       throw new Error(`Failed to generate article with id ${pressRelease.id}`);
@@ -75,7 +86,16 @@ const generateArticle = async (pressRelease, language) => {
       throw new Error('Invalid translation format received');
     }
 
-    if (!parsedMessage.title || !parsedMessage.content || !parsedMessage.author || !parsedMessage.publishedDate || !parsedMessage.tags || !parsedMessage.category || !parsedMessage.relatedCompanies || !parsedMessage.marketData) {
+    if (
+      !parsedMessage.title ||
+      !parsedMessage.content ||
+      !parsedMessage.author ||
+      !parsedMessage.publishedDate ||
+      !parsedMessage.tags ||
+      !parsedMessage.category ||
+      !parsedMessage.relatedCompanies ||
+      !parsedMessage.marketData
+    ) {
       throw new Error('Missing required fields in translation response');
     }
 
@@ -100,7 +120,7 @@ const generateArticle = async (pressRelease, language) => {
     article.relatedCompanies = parsedMessage.relatedCompanies || [];
     article.marketData = parsedMessage.marketData || { price: 0, marketCap: 0, change24h: 0 };
 
-    console.log('article: ', article);
+    console.log('article: ', article);   
 
     await article.save();
     return article;
@@ -179,7 +199,16 @@ const translateArticle = async (articleId, language) => {
       throw new Error('Invalid translation format received');
     }
 
-    if (!parsedMessage.title || !parsedMessage.content || !parsedMessage.author || !parsedMessage.publishedDate || !parsedMessage.tags || !parsedMessage.category || !parsedMessage.relatedCompanies || !parsedMessage.marketData) {
+    if (
+      !parsedMessage.title ||
+      !parsedMessage.content ||
+      !parsedMessage.author ||
+      !parsedMessage.publishedDate ||
+      !parsedMessage.tags ||
+      !parsedMessage.category ||
+      !parsedMessage.relatedCompanies ||
+      !parsedMessage.marketData
+    ) {
       throw new Error('Missing required fields in translation response');
     }
 

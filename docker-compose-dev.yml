@@ -26,7 +26,9 @@ services:
       context: ./backend
       dockerfile: ../docker/Dockerfile.backend.dev
     ports:
-      - "3001:3001"
+      - "3001:3001" # HTTP
+      - "8080:8080" # WebSocket
+      - "8081:8081" # WebSocket health check
     volumes:
       - ./backend:/app
       - /app/node_modules
