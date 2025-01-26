@@ -38,6 +38,7 @@ services:
       - .env
     environment:
       - MONGODB_URL=mongodb://db:27017/kitco-news
+      - CHOKIDAR_USEPOLLING=true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://backend:3001/v1/utils/health-check/"]
       interval: 10s
@@ -61,6 +62,8 @@ services:
       - "3000:3000"
     env_file:
       - .env
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`dashboard.${DOMAIN}`)"

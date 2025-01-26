@@ -3,16 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
-import { toast } from "../../components/ui/use-toast";
-import { BilingualPreview } from "../components/bilingual-preview";
+import { useToast } from "../../hooks/use-toast";
+import { BilingualPreview } from "app/components/bilingual-preview";
 import { ArticlesService } from "app/api/sdk.gen";
+import { useWebSocket } from "hooks/use-websocket";
+import PressReleases from "app/components/press-releases";
+import pressReleases from "../../press_releases.json";
 
 export default function GenerateArticlePage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [article, setArticle] = useState({
     title: "",
     content: "",
@@ -21,27 +24,49 @@ export default function GenerateArticlePage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleWebSocketMessage = (data: any) => {
+    if (data.type === "articleGenerated") {
+      toast({
+        title: "Article generated",
+        description: "Your article has been successfully generated.",
+      });
+      setArticle((prev) => ({ ...prev, ...data.article }));
+    }
+  };
+
+  const { sendMessage } = useWebSocket(
+    "ws://localhost:8080",
+    handleWebSocketMessage
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      const response = await ArticlesService.postArticlesGenerate({
-        requestBody: {
-          pressRelease: article.content,
-          language: article.language,
-        },
-      });
+      // const response = await ArticlesService.postArticlesGenerate({
+      //   requestBody: {
+      //     pressRelease: article.content,
+      //     language: article.language,
+      //   },
+      // });
 
-      if (!response) {
-        throw new Error("Failed to generate article");
-      }
+      // if (!response) {
+      //   throw new Error("Failed to generate article");
+      // }
 
-      toast({
-        title: "Article generated",
-        description: "Your article has been successfully generated.",
+      // toast({
+      //   title: "Article generated",
+      //   description: "Your article has been successfully generated.",
+      // });
+
+      // router.push("/");
+
+      sendMessage({
+        type: "generateArticle",
+        pressRelease: article.content,
+        language: article.language,
       });
-      router.push("/");
     } catch (error) {
       toast({
         title: "Error",
@@ -76,6 +101,11 @@ export default function GenerateArticlePage() {
           />
         </div>
 
+        {/* <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Press Releases</h2>
+          <PressReleases pressReleases={pressReleases} />
+        </div> */}
+
         <RadioGroup
           name="language"
           value={article.language}
@@ -100,7 +130,7 @@ export default function GenerateArticlePage() {
       </form>
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Article Preview</h2>
-        <BilingualPreview article={article}/>
+        <BilingualPreview article={article} />
       </div>
     </div>
   );

@@ -11,8 +11,6 @@ COPY . .
 
 EXPOSE 3000
 
-# Use development mode by default
 ENV NODE_ENV=development
 
-# Use npm run dev for development
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]

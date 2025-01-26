@@ -11,22 +11,34 @@ class WebSocketManager {
 
   initializeWebSocketServer(port) {
     const server = new WebSocket.Server({ port });
-    server.on('connection', this.onConnection.bind(this));
+    server.on('connection', (ws, req) => this.onConnection(ws, req));
     logger.info(`WebSocket server running on port ${port}`);
     return server;
   }
 
-  onConnection(ws) {
+  onConnection(ws, req) {
     logger.info('WebSocket: New client connected');
-    ws.on('message', (message) => this.onMessage(ws, message));
+
+    if (ws.readyState === WebSocket.OPEN) {
+      logger.info('WebSocket: Connection is open');
+    }
+
+    ws.send(JSON.stringify({ message: 'Welcome to Kitco News WebSocket server!' }));
+
+    ws.on('message', (message) => {
+      logger.info(`WebSocket: Raw message received: ${message}`);
+      logger.info(`WebSocket: Message received: ${JSON.stringify(message, null, 2)}`);
+      this.onMessage(ws, message);
+    });
+
     ws.on('close', () => logger.info('WebSocket: Client disconnected'));
     ws.on('error', (error) => logger.error('WebSocket: Error:', error));
   }
 
   onMessage(ws, message) {
-    logger.info(`WebSocket: Received message: ${message}`);
+    logger.info(`WebSocket: Received message: ${JSON.stringify(message, null, 2)}`);
     try {
-      const { type, payload } = JSON.parse(message);
+      const { type, ...payload } = JSON.parse(message);
       const handler = this.handlers[type];
       if (handler) {
         handler(ws, payload);
