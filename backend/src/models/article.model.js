@@ -6,7 +6,6 @@ const articleSchema = mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
       trim: true,
     },
     titleFr: {
@@ -15,7 +14,6 @@ const articleSchema = mongoose.Schema(
     },
     content: {
       type: String,
-      required: true,
       trim: true,
     },
     summary: {

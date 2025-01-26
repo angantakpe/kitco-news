@@ -3,9 +3,9 @@ const { objectId } = require('./custom.validation');
 
 const createArticle = {
   body: Joi.object().keys({
-    title: Joi.string().required(),
+    title: Joi.string().allow(null),
     titleFr: Joi.string().allow(null),
-    content: Joi.string().required(),
+    content: Joi.string().allow(null),
     contentFr: Joi.string().allow(null),
     category: Joi.string().valid('mining', 'crypto'),
     tags: Joi.array().items(Joi.string()),

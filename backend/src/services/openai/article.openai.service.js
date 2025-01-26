@@ -14,32 +14,38 @@ const openai = new OpenAI({
 /**
  * Generate an article from a press release
  * @param {string} pressRelease
- * @param {string} language
- * @returns {Promise<string>}
+ * @param {string} language - 'english' or 'french'
+ * @returns {Promise<Article>}
  */
 const generateArticle = async (pressRelease, language) => {
   try {
-    const prompt = `Generate a professional article based on this fake press release:\n\n${pressRelease} in ${language}
+    const prompt = `Generate in ${language} a professional article based on this fake press release:\n\n
 
-    The article should be categorized either "mining" or "crypto" the following format:
-    {
-      "title": "string",
-      "content": "string",
-      "author": "string",
-      "publishedDate": "string",
-      "tags": ["string"],
-      "category": "string",
-      "relatedCompanies": ["string"],
-      "marketData": {
-        "price": "number",
-        "marketCap": "number",
-        "change24h": "number"
-      }
-    }
-    `;
+      ${pressRelease}
+
+      The response must be a valid JSON object with the following format:
+      {
+        "title": "Article title",
+        "content": "Full article content",
+        "author": "Author name",
+        "publishedDate": "YYYY-MM-DD",
+        "tags": ["relevant", "tags", "here"],
+        "category": "mining OR crypto",
+        "relatedCompanies": ["Company names"],
+        "marketData": {
+          "price": number,
+          "marketCap": number,
+          "change24h": number
+        }
+      }`;
+
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
+        {
+          role: 'system',
+          content: 'You are a professional financial journalist who writes about mining and cryptocurrency.',
+        },
         {
           role: 'user',
           content: prompt,
@@ -51,15 +57,42 @@ const generateArticle = async (pressRelease, language) => {
 
     const message = response.choices[0].message.content.trim();
     if (!message) {
-      throw new Error(`Failed to generate article from press release ${pressRelease}`);
+      throw new Error('Empty response received from OpenAI');
     }
 
-    const article = new Article({ ...JSON.parse(message) });
+    let parsedMessage;
+    try {
+      parsedMessage = JSON.parse(message);
+    } catch (parseError) {
+      logger.error('Invalid JSON response:', message);
+      throw new Error('Invalid JSON format received from OpenAI');
+    }
+
+    const requiredFields = ['title', 'content', 'author', 'category'];
+    const missingFields = requiredFields.filter((field) => !parsedMessage[field]);
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+    }
+
+    // Handle language-specific fields
+    const article = new Article({
+      title: language === 'french' ? parsedMessage.title : parsedMessage.title,
+      titleFr: language === 'french' ? parsedMessage.title : '',
+      content: language === 'french' ? parsedMessage.content : parsedMessage.content,
+      contentFr: language === 'french' ? parsedMessage.content : '',
+      author: parsedMessage.author,
+      publishedDate: parsedMessage.publishedDate,
+      tags: parsedMessage.tags || [],
+      category: parsedMessage.category,
+      relatedCompanies: parsedMessage.relatedCompanies || [],
+      marketData: parsedMessage.marketData || { price: 0, marketCap: 0, change24h: 0 },
+    });
+
     await article.save();
     return article;
   } catch (error) {
     logger.error(`Error generating article in ${language}:`, error);
-    throw new Error('Failed to generate article');
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Failed to generate article: ${error.message}`);
   }
 };
 
@@ -113,8 +146,6 @@ const translateArticle = async (articleId, language) => {
     if (!message) {
       throw new Error(`Failed to translate article with id ${articleId}`);
     }
-
-    console.log('translateArticle message: ', message);
 
     let parsedMessage;
     try {

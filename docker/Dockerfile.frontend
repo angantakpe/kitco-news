@@ -1,18 +1,23 @@
-FROM node:18.20.5-bullseye
+FROM node:18.20.5-bullseye AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 RUN npm cache clean --force && \
     npm install --legacy-peer-deps
 
 COPY . .
 
+RUN npm install @next/swc-linux-x64-gnu --legacy-peer-deps
+
+RUN npm run build
+
+FROM node:18.20.5-alpine
+WORKDIR /app
+
+COPY --from=builder /app ./
+
 EXPOSE 3000
 
-# Use development mode by default
-ENV NODE_ENV=development
-
-# Use npm run dev for development
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]

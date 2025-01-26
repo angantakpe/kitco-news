@@ -1,12 +1,30 @@
 # Environment and compose files
 ENV_FILE := .env
 COMPOSE_FILE := docker-compose.yml
+COMPOSE_FILE_DEV := docker-compose-dev.yml
 KUBECTL_APPLY = kubectl apply -f kubernetes/
+
+.PHONY: dev
+dev: build-dev dev-up
+
+.PHONY: build-dev
+build-dev:
+	@echo "🔨 Building backend and frontend services..."
+	docker-compose -f $(COMPOSE_FILE_DEV) build
+
+.PHONY: dev-up
+dev-up:
+	@echo "🚀 Starting all services..."
+	docker network inspect traefik-public >/dev/null 2>&1 || docker network create traefik-public
+	docker-compose -f $(COMPOSE_FILE_DEV) up -d
+
+.PHONY: dev-down
+dev-down:
+	@echo "🛑 Stopping all services..."
+	docker-compose -f $(COMPOSE_FILE_DEV) down
 
 .PHONY: all
 all: build up
-
-## Docker commands
 
 .PHONY: build
 build:

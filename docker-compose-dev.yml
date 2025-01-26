@@ -1,0 +1,109 @@
+version: "3.8"
+
+services:
+  db:
+    image: mongo:4.2.1-bionic
+    ports:
+      - "27017:27017"
+    volumes:
+      - dbdata:/data/db
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URL=mongodb://db:27017/kitco-news
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    networks:
+      - traefik-public
+
+  backend:
+    image: kitco-backend
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend.dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/usr/src/kitco-news
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URL=mongodb://db:27017/kitco-news
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://backend:3001/v1/utils/health-check/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.${DOMAIN}`)"
+      - "traefik.http.routers.backend.entrypoints=http"
+      - "traefik.http.routers.backend.middlewares=https-redirect"
+      - "traefik.http.services.backend.loadbalancer.server.port=3001"
+    restart: always
+    networks:
+      - traefik-public
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend.dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`dashboard.${DOMAIN}`)"
+      - "traefik.http.routers.frontend.entrypoints=http"
+      - "traefik.http.routers.frontend.middlewares=https-redirect"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    restart: always
+    networks:
+      - traefik-public
+
+  traefik:
+    image: traefik:3.0
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.traefik.middlewares=https-redirect"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-public-certificates:/certificates
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--certificatesresolvers.le.acme.email=${EMAIL}"
+      - "--certificatesresolvers.le.acme.storage=/certificates/acme.json"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--accesslog"
+      - "--log"
+    restart: always
+    networks:
+      - traefik-public
+
+
+volumes:
+  dbdata:
+  traefik-public-certificates:
+
+networks:
+  traefik-public:
+    external: true
