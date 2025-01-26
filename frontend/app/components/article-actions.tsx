@@ -21,13 +21,23 @@ export function ArticleActions({ params, article }: ArticleActionsProps) {
   const [language, setLanguage] = useState("");
 
   const handleTranslate = async () => {
+    if (!language) {
+      toast({
+        title: "Language not set",
+        description: "Please set the language first.",
+      });
+      return;
+    }
     const translatedArticle = await ArticlesService.postArticlesByIdTranslate({
       id: params.id,
       requestBody: {
         language: language,
       },
     });
-    let translatedContent = language === "english" ? translatedArticle.content : translatedArticle.contentFr;
+    let translatedContent =
+      language === "english"
+        ? translatedArticle.content
+        : translatedArticle.contentFr;
 
     setTranslatedContent(translatedContent);
     toast({
@@ -37,11 +47,18 @@ export function ArticleActions({ params, article }: ArticleActionsProps) {
   };
 
   const handleSummarize = async () => {
-    console.log("detectedLanguage: ", detectedLanguage);
+    console.log("language: ", language);
+    if (!language) {
+      toast({
+        title: "Language not set",
+        description: "Please set the language first.",
+      });
+      return;
+    }
     const summarizedArticle = await ArticlesService.postArticlesByIdSummarize({
       id: params.id,
       requestBody: {
-        language: detectedLanguage,
+        language: language,
       },
     });
 
@@ -53,11 +70,17 @@ export function ArticleActions({ params, article }: ArticleActionsProps) {
   };
 
   const handleTag = async () => {
-    console.log("detectedLanguage: ", detectedLanguage);
+    if (!language) {
+      toast({
+        title: "Language not set",
+        description: "Please set the language first.",
+      });
+      return;
+    }
     const taggedArticle = await ArticlesService.postArticlesByIdTag({
       id: params.id,
       requestBody: {
-        language: detectedLanguage,
+        language: language,
       },
     });
 
@@ -74,21 +97,30 @@ export function ArticleActions({ params, article }: ArticleActionsProps) {
     if (detectedLanguage === "eng" || detectedLanguage === "en") {
       setDetectedLanguage("english");
       setLanguage("french");
-    } else if (
+    }
+
+    if (
       detectedLanguage === "fra" ||
       detectedLanguage === "fr" ||
       detectedLanguage === "french"
     ) {
       setDetectedLanguage("french");
       setLanguage("english");
-    } else {
-      console.log("Defaulting to english: ", detectedLanguage);
-      setDetectedLanguage("english");
-      setLanguage("english");
     }
 
     console.log("detectedLanguage: ", detectedLanguage);
+    console.log("language: ", language);
   }, [article]);
+
+  useEffect(() => {
+    console.log("language: ", language);
+    if (!language) {
+      toast({
+        title: "Language not set",
+        description: "Please set the language first.",
+      });
+    }
+  }, [language]);
 
   return (
     <div className="space-y-4">
@@ -97,9 +129,7 @@ export function ArticleActions({ params, article }: ArticleActionsProps) {
         <RadioGroup
           name="language"
           value={language}
-          onValueChange={(value) =>
-            setLanguage(value)
-          }
+          onValueChange={(value) => setLanguage(value)}
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="english" id="english" />

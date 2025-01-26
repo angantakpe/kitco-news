@@ -6,7 +6,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - dbdata:/data/db
+      - app-db-data:/data/db
     env_file:
       - .env
     environment:
@@ -101,7 +101,7 @@ services:
 
 
 volumes:
-  dbdata:
+  app-db-data:
   traefik-public-certificates:
 
 networks:

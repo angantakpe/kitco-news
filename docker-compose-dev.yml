@@ -6,7 +6,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - dbdata:/data/db
+      - app-db-data:/data/db
     env_file:
       - .env
     environment:
@@ -28,7 +28,8 @@ services:
     ports:
       - "3001:3001"
     volumes:
-      - .:/usr/src/kitco-news
+      - ./backend:/app
+      - /app/node_modules
     depends_on:
       db:
         condition: service_healthy
@@ -57,6 +58,9 @@ services:
       dockerfile: ../docker/Dockerfile.frontend.dev
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     env_file:
       - .env
     labels:
@@ -99,9 +103,8 @@ services:
     networks:
       - traefik-public
 
-
 volumes:
-  dbdata:
+  app-db-data:
   traefik-public-certificates:
 
 networks:
