@@ -53,6 +53,16 @@ services:
     restart: always
     networks:
       - traefik-public
+    develop:
+      watch:
+        - path: ./backend
+          action: sync
+          target: /app
+          ignore:
+            - ./backend/.venv
+            - .venv
+        - path: ./backend/pyproject.toml
+          action: rebuild
 
   frontend:
     build:
@@ -73,6 +83,12 @@ services:
     restart: always
     networks:
       - traefik-public
+    develop:
+      watch:
+        - path: ./frontend
+          action: sync
+          target: /app
+
 
   traefik:
     image: traefik:3.0

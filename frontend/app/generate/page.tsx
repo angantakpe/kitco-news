@@ -23,19 +23,32 @@ export default function GenerateArticlePage() {
     author: "John Doe",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [streamingData, setStreamingData] = useState([]);
 
   const handleWebSocketMessage = (data: any) => {
-    if (data.type === "articleGenerated") {
+    console.log("handleWebSocketMessage", data);
+
+    if (data.type === "articleChunk") {
+      console.log("articleChunk", data);
+      // setStreamingData((prev) => [...prev, data]);
+      // setArticle((prev) => ({
+      //   ...prev,
+      //   content: prev.content + data.content,
+      // }));
+    } else if (data.type === "articleGenerated") {
       toast({
         title: "Article generated",
         description: "Your article has been successfully generated.",
       });
       setArticle((prev) => ({ ...prev, ...data.article }));
+    } else {
+      console.log("unknown message type", data);
     }
   };
 
   const { sendMessage } = useWebSocket(
-    "ws://localhost:8080",
+    process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080",
     handleWebSocketMessage
   );
 
@@ -128,6 +141,13 @@ export default function GenerateArticlePage() {
           {isSubmitting ? "Generating..." : "Generate Article"}
         </Button>
       </form>
+      
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Streaming Data Preview</h2>
+        <pre className="bg-gray-100 p-4 rounded-lg overflow-auto max-h-96">
+          {JSON.stringify(streamingData, null, 2)}
+        </pre>
+      </div>
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Article Preview</h2>
         <BilingualPreview article={article} />

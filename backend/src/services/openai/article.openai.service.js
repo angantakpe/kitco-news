@@ -45,7 +45,7 @@ const generateArticle = async (pressRelease, language) => {
       Content: ${pressRelease.content}
     `;
 
-    const response = await openai.chat.completions.create({
+    return await openai.chat.completions.create({
       stream: true,
       model: 'gpt-3.5-turbo',
       messages: [
@@ -62,68 +62,6 @@ const generateArticle = async (pressRelease, language) => {
       max_tokens: 2000,
       temperature: 0.7,
     });
-
-    let message = '';
-    for await (const chunk of response) {
-      for (const choice of chunk.choices) {
-        const content = choice.delta.content || '';
-        message += content;
-        console.log('Streaming response chunk:', content);
-      }
-    }
-
-    message = message.trim();
-
-    if (!message) {
-      throw new Error(`Failed to generate article with id ${pressRelease.id}`);
-    }
-
-    let parsedMessage;
-    try {
-      parsedMessage = JSON.parse(message);
-    } catch (parseError) {
-      logger.error(`Invalid JSON response for article ${pressRelease.id}:`, message);
-      throw new Error('Invalid translation format received');
-    }
-
-    if (
-      !parsedMessage.title ||
-      !parsedMessage.content ||
-      !parsedMessage.author ||
-      !parsedMessage.publishedDate ||
-      !parsedMessage.tags ||
-      !parsedMessage.category ||
-      !parsedMessage.relatedCompanies ||
-      !parsedMessage.marketData
-    ) {
-      throw new Error('Missing required fields in translation response');
-    }
-
-    const article = new Article();
-
-    if (language === 'french') {
-      article.title = pressRelease.title || '';
-      article.titleFr = parsedMessage.title || '';
-      article.content = pressRelease.content || '';
-      article.contentFr = parsedMessage.content || '';
-    } else {
-      article.title = parsedMessage.title || '';
-      article.titleFr = pressRelease.title || '';
-      article.content = parsedMessage.content || '';
-      article.contentFr = pressRelease.content || '';
-    }
-
-    article.author = parsedMessage.author || '';
-    article.publishedDate = parsedMessage.publishedDate || '';
-    article.tags = parsedMessage.tags || [];
-    article.category = parsedMessage.category || '';
-    article.relatedCompanies = parsedMessage.relatedCompanies || [];
-    article.marketData = parsedMessage.marketData || { price: 0, marketCap: 0, change24h: 0 };
-
-    console.log('article: ', article);   
-
-    await article.save();
-    return article;
   } catch (error) {
     logger.error(`Error generating article in ${language}:`, error);
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Failed to generate article: ${error.message}`);
