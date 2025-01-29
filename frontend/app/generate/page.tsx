@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../../components/ui/button";
 import { Label } from "../../components/ui/label";
@@ -28,24 +28,37 @@ export default function GenerateArticlePage() {
 
   const handleWebSocketMessage = (data: any) => {
     console.log("handleWebSocketMessage", data);
-
+  
     if (data.type === "articleChunk") {
       console.log("articleChunk", data);
-      // setStreamingData((prev) => [...prev, data]);
-      // setArticle((prev) => ({
-      //   ...prev,
-      //   content: prev.content + data.content,
-      // }));
+  
+      // Buffer the data instead of updating state immediately
+      setStreamingData((prev) => [...prev, data]);
+  
+      // Use a ref to collect the latest article content without frequent re-renders
+      setArticle((prev) => ({
+        ...prev,
+        content: prev.content + (data.content || ""),
+      }));
     } else if (data.type === "articleGenerated") {
+      setIsGenerating(false);
       toast({
         title: "Article generated",
         description: "Your article has been successfully generated.",
       });
       setArticle((prev) => ({ ...prev, ...data.article }));
+    } else if (data.type === "error") {
+      setIsGenerating(false);
+      toast({
+        title: "Error",
+        description: data.message || "An error occurred while generating the article.",
+        variant: "destructive",
+      });
     } else {
       console.log("unknown message type", data);
     }
   };
+  
 
   const { sendMessage } = useWebSocket(
     process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080",
@@ -103,7 +116,7 @@ export default function GenerateArticlePage() {
       <h1 className="text-3xl font-bold mb-6">Generate Article</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <Label htmlFor="content">Press Release</Label>
+          <Label htmlFor="content" className="text-lg mb-2 font-bold">Press Release</Label>
           <Textarea
             id="content"
             name="content"
