@@ -136,7 +136,7 @@ export function ArticleList() {
             <TableHead>Title</TableHead>
             <TableHead>Author</TableHead>
             <TableHead>Content</TableHead>
-            {/* <TableHead>Language</TableHead> */}
+            <TableHead>ContentFr</TableHead>
             <TableHead>Tags</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -146,10 +146,8 @@ export function ArticleList() {
             <TableRow key={index}>
               <TableCell>{article.title}</TableCell>
               <TableCell>{article.author}</TableCell>
-              <TableCell>{article.content}</TableCell>
-              {/* <TableCell>
-                {article.language === "en" ? "English" : "French"}
-              </TableCell> */}
+              <TableCell>{article.content?.slice(0, 100)}{article.content?.length > 100 ? '...' : ''}</TableCell>
+              <TableCell>{article.contentFr?.slice(0, 100)}{article.contentFr?.length > 100 ? '...' : ''}</TableCell>
               <TableCell>
                 {article.tags.map((tag, index) => (
                   <Badge key={index} variant="secondary" className="mr-1">

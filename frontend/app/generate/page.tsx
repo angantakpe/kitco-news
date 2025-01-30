@@ -19,24 +19,30 @@ export default function GenerateArticlePage() {
   const [article, setArticle] = useState({
     title: "",
     content: "",
+    contentEn: "",
+    contentFr: "",
     language: "english",
     author: "John Doe",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [streamingData, setStreamingData] = useState([]);
+  // const [streamingData, setStreamingData] = useState([]);
+  const [streamingData, setStreamingData] = useState({
+    title: "",
+    content: "",
+    contentEn: "",
+    contentFr: "",
+    language: "english",
+    author: "John Doe",
+  });
 
   const handleWebSocketMessage = (data: any) => {
     console.log("handleWebSocketMessage", data);
   
     if (data.type === "articleChunk") {
       console.log("articleChunk", data);
-  
-      // Buffer the data instead of updating state immediately
-      setStreamingData((prev) => [...prev, data]);
-  
       // Use a ref to collect the latest article content without frequent re-renders
-      setArticle((prev) => ({
+      setStreamingData((prev) => ({
         ...prev,
         content: prev.content + (data.content || ""),
       }));
@@ -46,7 +52,7 @@ export default function GenerateArticlePage() {
         title: "Article generated",
         description: "Your article has been successfully generated.",
       });
-      setArticle((prev) => ({ ...prev, ...data.article }));
+      setArticle(data.article);
     } else if (data.type === "error") {
       setIsGenerating(false);
       toast({
@@ -70,24 +76,6 @@ export default function GenerateArticlePage() {
     setIsSubmitting(true);
 
     try {
-      // const response = await ArticlesService.postArticlesGenerate({
-      //   requestBody: {
-      //     pressRelease: article.content,
-      //     language: article.language,
-      //   },
-      // });
-
-      // if (!response) {
-      //   throw new Error("Failed to generate article");
-      // }
-
-      // toast({
-      //   title: "Article generated",
-      //   description: "Your article has been successfully generated.",
-      // });
-
-      // router.push("/");
-
       sendMessage({
         type: "generateArticle",
         pressRelease: article.content,
@@ -156,11 +144,25 @@ export default function GenerateArticlePage() {
       </form>
       
       <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Streaming Data Preview</h2>
-        <pre className="bg-gray-100 p-4 rounded-lg overflow-auto max-h-96">
+        <h2 className="text-2xl font-bold mb-4">Json Data</h2>
+        {/* <pre className="bg-gray-100 p-4 rounded-lg overflow-auto max-h-96">
           {JSON.stringify(streamingData, null, 2)}
         </pre>
+
+        <div>
+          <Label htmlFor="content" className="text-lg mb-2 font-bold">Press Release</Label> */}
+          <Textarea
+            id="content"
+            name="content"
+            value={streamingData.content}
+            onChange={handleChange}
+            required
+            rows={10}
+          />
+        {/* </div> */}
       </div>
+      
+
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Article Preview</h2>
         <BilingualPreview article={article} />

@@ -5,6 +5,7 @@ export type Article = {
     title: string;
     titleFr?: string;
     content: string;
+    contentEn?: string;
     contentFr?: string;
     author: string;
     publishedDate?: string;
