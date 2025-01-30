@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: my-frontend-image:latest  # Replace with your frontend image name
+          image: kitconews-docker-registry/frontend:latest
           ports:
             - containerPort: 3000
 ---

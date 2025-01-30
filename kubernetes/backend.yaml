@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: my-backend-image:latest  # Replace with your backend image name
+          image: kitconews-docker-registry/backend:latest
           ports:
             - containerPort: 3001
           env:
