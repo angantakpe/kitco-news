@@ -9,8 +9,12 @@ RUN npm cache clean --force && \
 
 COPY . .
 
+RUN npm install @next/swc-linux-x64-gnu --legacy-peer-deps
+
+RUN npm run build
+
 EXPOSE 3000
 
 ENV NODE_ENV=development
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
